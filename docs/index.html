@@ -139,9 +139,12 @@
       function frame(n) {
         return "./brand/scrub/f" + String(n).padStart(2, "0") + ".jpg";
       }
-      for (let i = 1; i <= total; i++) {
+      const ready = new Set([1]);
+      function warm(n) {
+        if (n < 1 || n > total || ready.has(n)) return;
+        ready.add(n);
         const preload = new Image();
-        preload.src = frame(i);
+        preload.src = frame(n);
       }
       function paint() {
         if (mobile.matches) onScroll();
@@ -149,6 +152,8 @@
         const index = 1 + Math.round(shown * (total - 1));
         const src = frame(index);
         if (img.getAttribute("src") !== src) img.src = src;
+        warm(index + 1);
+        warm(index + 2);
         bar.style.width = Math.round(shown * 100) + "%";
         const fase = document.getElementById("fase");
         const linha = document.getElementById("linha");
