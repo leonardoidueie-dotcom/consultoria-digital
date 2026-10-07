@@ -45,18 +45,26 @@
       .card strong { display: block; font-size: 22px; }
       .card p { color: var(--muted); }
       footer { padding: 28px 0 48px; color: var(--muted); font-size: 14px; }
-      .teste { margin-top: 12px; border: 1px solid color-mix(in srgb, var(--cyan) 30%, transparent); background: var(--surface); border-radius: 16px; padding: 12px 14px; }
-      .teste p { margin: 0; }
-      .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; text-align: center; }
-      .nums span { display: block; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-      .nums strong { font-size: 18px; }
-      .nums strong.cyan { color: var(--cyan); }
+      .demo { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+      .bubble { margin: 0; border-radius: 16px; padding: 12px 14px; max-width: 92%; }
+      .bubble.cliente { background: #12304f; }
+      .bubble.sistema { background: var(--cyan); color: var(--ink); margin-left: auto; font-weight: 600; }
+      .demo .antes { margin: 0; color: var(--muted); font-size: 14px; }
+      .demo h3 { margin: 4px 0 0; font-size: 26px; line-height: 1.15; letter-spacing: -0.03em; }
       @media (max-width: 800px) {
         nav { display: none; }
         .grid.three, .grid.two { grid-template-columns: 1fr; }
-        .runway { height: 320vh; }
-        .runway figure { position: sticky; top: 64px; }
-        .runway img { max-height: 50vh; width: 100%; object-fit: contain; }
+        .runway { height: 180vh; }
+        .runway figure {
+          position: sticky;
+          top: 64px;
+          min-height: calc(100svh - 72px);
+          display: flex;
+          flex-direction: column;
+          background: var(--ink);
+        }
+        .runway img { max-height: 36vh; width: 100%; object-fit: contain; }
+        .demo { flex: 1; justify-content: center; }
       }
     </style>
   </head>
@@ -86,14 +94,11 @@
             <p id="dica">Mova o cursor</p>
             <div class="track"><i id="barra"></i></div>
           </div>
-          <div class="teste" id="teste">
-            <p class="kicker" id="fase">Teste ao vivo · Diagnóstico</p>
-            <p id="linha">O fluxo ainda é manual. O teste mede a fila.</p>
-            <div class="nums">
-              <div><span>Passo</span><strong id="passo">1/48</strong></div>
-              <div><span>Horas</span><strong class="cyan" id="horas">0h</strong></div>
-              <div><span>Manuais</span><strong id="manuais">14</strong></div>
-            </div>
+          <div class="demo" id="demo">
+            <p class="antes" id="antes">Antes: alguém tinha que responder na mão.</p>
+            <p class="bubble cliente">Cliente: Quero um orçamento.</p>
+            <p class="bubble sistema" id="resposta" hidden>Sistema: Pronto. Segue o orçamento.</p>
+            <h3 id="conclusao">Role a tela. A resposta aparece sozinha.</h3>
           </div>
         </figure>
       </div>
@@ -155,25 +160,21 @@
         warm(index + 1);
         warm(index + 2);
         bar.style.width = Math.round(shown * 100) + "%";
-        const fase = document.getElementById("fase");
-        const linha = document.getElementById("linha");
-        const phase = shown < 0.25 ? "Diagnóstico" : shown < 0.5 ? "Automação" : shown < 0.75 ? "Site no ar" : "Resultado";
-        const text =
-          shown < 0.25
-            ? "O fluxo ainda é manual. O teste mede a fila."
-            : shown < 0.5
-              ? "A automação entra. As etapas começam a cair."
-              : shown < 0.75
-                ? "O pedido chega sozinho. O site já conduz."
-                : "Resultado: 18 horas por semana voltam para a operação.";
-        if (fase) fase.textContent = "Teste ao vivo · " + phase;
-        if (linha) linha.textContent = text;
-        const passo = document.getElementById("passo");
-        const horas = document.getElementById("horas");
-        const manuais = document.getElementById("manuais");
-        if (passo) passo.textContent = index + "/48";
-        if (horas) horas.textContent = Math.round(shown * 18) + "h";
-        if (manuais) manuais.textContent = String(Math.max(0, 14 - Math.round(shown * 14)));
+        const resposta = document.getElementById("resposta");
+        const antes = document.getElementById("antes");
+        const conclusao = document.getElementById("conclusao");
+        if (shown < 0.4) {
+          if (resposta) resposta.hidden = true;
+          if (antes) antes.textContent = "Antes: alguém tinha que responder na mão.";
+          if (conclusao) conclusao.textContent = "Role a tela. A resposta aparece sozinha.";
+        } else {
+          if (resposta) {
+            resposta.hidden = false;
+            resposta.textContent = shown < 0.75 ? "Sistema: Um instante." : "Sistema: Pronto. Segue o orçamento.";
+          }
+          if (antes) antes.textContent = "Agora o sistema responde.";
+          if (conclusao) conclusao.textContent = shown < 0.75 ? "Olha a resposta entrando." : "Pronto. Ninguém precisou digitar.";
+        }
         requestAnimationFrame(paint);
       }
       function onScroll() {

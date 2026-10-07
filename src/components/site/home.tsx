@@ -203,14 +203,14 @@ function ScrubFilm() {
   }, [mobile]);
 
   return (
-    <div ref={stageRef} className={mobile ? "relative h-[320vh]" : undefined}>
-      <figure className={mobile ? "sticky top-16 z-10" : undefined}>
+    <div ref={stageRef} className={mobile ? "relative h-[180vh]" : undefined}>
+      <figure className={mobile ? "sticky top-16 z-10 flex min-h-[calc(100svh-4.5rem)] flex-col bg-ink" : undefined}>
         <img
           src={scrubSrc(index)}
           alt="Figura no gelo com um pinguim. No celular, role a tela para ele andar."
           width={840}
           height={734}
-          className={mobile ? "mx-auto h-auto max-h-[50vh] w-full object-contain" : "h-auto w-full bg-ink object-contain"}
+          className={mobile ? "mx-auto h-auto max-h-[36vh] w-full object-contain" : "h-auto w-full bg-ink object-contain"}
         />
         <div className="mt-3 flex items-center gap-3">
           <p className="text-xs font-medium tracking-widest text-cyan uppercase">{mobile ? "Role para a frente" : "Mova o cursor"}</p>
@@ -226,37 +226,21 @@ function ScrubFilm() {
 
 function WalkTest({ index }: { index: number }) {
   const progress = (index - 1) / (SCRUB_FRAMES - 1);
-  const phase =
-    progress < 0.25 ? "Diagnóstico" : progress < 0.5 ? "Automação" : progress < 0.75 ? "Site no ar" : "Resultado";
-  const line =
-    progress < 0.25
-      ? "O fluxo ainda é manual. O teste mede a fila."
-      : progress < 0.5
-        ? "A automação entra. As etapas começam a cair."
-        : progress < 0.75
-          ? "O pedido chega sozinho. O site já conduz."
-          : "Resultado: 18 horas por semana voltam para a operação.";
-  const horas = Math.round(progress * 18);
-  const manuais = Math.max(0, 14 - Math.round(progress * 14));
+  const answered = progress >= 0.4;
+  const done = progress >= 0.75;
 
   return (
-    <div className="mt-3 rounded-2xl border border-cyan/30 bg-surface px-4 py-3">
-      <p className="text-xs font-medium tracking-widest text-cyan uppercase">Teste ao vivo · {phase}</p>
-      <p className="mt-1 text-sm text-pretty text-snow">{line}</p>
-      <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
-        <div>
-          <dt className="text-[10px] tracking-wide text-muted uppercase">Passo</dt>
-          <dd className="text-lg font-semibold text-snow">{index}/48</dd>
-        </div>
-        <div>
-          <dt className="text-[10px] tracking-wide text-muted uppercase">Horas</dt>
-          <dd className="text-lg font-semibold text-cyan">{horas}h</dd>
-        </div>
-        <div>
-          <dt className="text-[10px] tracking-wide text-muted uppercase">Manuais</dt>
-          <dd className="text-lg font-semibold text-snow">{manuais}</dd>
-        </div>
-      </dl>
+    <div className="mt-3 flex flex-1 flex-col justify-center gap-3">
+      <p className="text-sm text-muted">{answered ? "Agora o sistema responde." : "Antes: alguém tinha que responder na mão."}</p>
+      <p className="max-w-[92%] rounded-2xl bg-[#12304f] px-4 py-3 text-snow">Cliente: Quero um orçamento.</p>
+      {answered ? (
+        <p className="ml-auto max-w-[92%] rounded-2xl bg-cyan px-4 py-3 font-semibold text-ink">
+          {done ? "Sistema: Pronto. Segue o orçamento." : "Sistema: Um instante."}
+        </p>
+      ) : null}
+      <p className="text-2xl leading-display font-bold tracking-tight">
+        {done ? "Pronto. Ninguém precisou digitar." : answered ? "Olha a resposta entrando." : "Role a tela. A resposta aparece sozinha."}
+      </p>
     </div>
   );
 }
