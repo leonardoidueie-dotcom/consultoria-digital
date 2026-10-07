@@ -51,6 +51,14 @@
       .bubble.sistema { background: var(--cyan); color: var(--ink); margin-left: auto; font-weight: 600; }
       .demo .antes { margin: 0; color: var(--muted); font-size: 14px; }
       .demo h3 { margin: 4px 0 0; font-size: 26px; line-height: 1.15; letter-spacing: -0.03em; }
+      input[type="range"] { width: 100%; accent-color: var(--cyan); }
+      .pair { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-top: 14px; }
+      .pair:first-child { margin-top: 0; }
+      .money { background: #04101c; border-radius: 16px; padding: 16px; }
+      .money strong { display: block; margin-top: 6px; font-size: clamp(28px, 5vw, 40px); letter-spacing: -0.03em; }
+      .money .cyan { color: var(--cyan); }
+      .pick { height: 44px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--cyan) 40%, transparent); background: transparent; color: var(--snow); padding: 0 16px; font: inherit; font-weight: 600; }
+      .pick.on { background: var(--cyan); color: var(--ink); border-color: var(--cyan); }
       @media (max-width: 800px) {
         nav { display: none; }
         .grid.three, .grid.two { grid-template-columns: 1fr; }
@@ -83,7 +91,7 @@
         <h1>Estratégia. Inovação. <span>Resultados.</span></h1>
         <p class="lead">Automação, websites e sistemas sob medida. No celular, role a tela e ele anda para a frente.</p>
         <div class="actions">
-          <a class="btn solid" href="#contato">Falar do projeto</a>
+          <a class="btn solid" href="#conta">Ver a conta</a>
           <a class="btn line" href="#servicos">Ver serviços</a>
         </div>
       </div>
@@ -102,6 +110,45 @@
           </div>
         </figure>
       </div>
+      <section id="conta">
+        <div class="wrap">
+          <p class="kicker">Na prática</p>
+          <h2>Coloque os números da sua empresa.</h2>
+          <p class="lead">A resposta lenta esfria pedido. Mexa nos controles. A conta muda na hora. Não é frase de efeito.</p>
+          <div class="card">
+            <label class="pair" for="msg"><span>Mensagens por dia</span><strong id="vMsg">20</strong></label>
+            <input id="msg" type="range" min="5" max="80" value="20" />
+            <label class="pair" for="min"><span>Minutos até responder</span><strong id="vMin">15 min</strong></label>
+            <input id="min" type="range" min="1" max="60" value="15" />
+            <label class="pair" for="ticket"><span>Valor de um pedido</span><strong id="vTicket">R$ 200</strong></label>
+            <input id="ticket" type="range" min="50" max="2000" step="10" value="200" />
+          </div>
+          <div class="grid two">
+            <article class="money">
+              <p class="kicker">Se continuar assim</p>
+              <strong id="perdido">R$ 0</strong>
+              <p id="perdidoTxt"></p>
+            </article>
+            <article class="money">
+              <p class="kicker">Se o sistema responde na hora</p>
+              <strong class="cyan" id="volta">R$ 0</strong>
+              <p id="voltaTxt"></p>
+            </article>
+          </div>
+          <p class="lead" id="ano"></p>
+        </div>
+      </section>
+      <section id="amostras">
+        <div class="wrap">
+          <p class="kicker">Amostras</p>
+          <h2>O mesmo dia, com e sem o sistema.</h2>
+          <div class="actions">
+            <button class="pick on" id="sem" type="button">Sem sistema</button>
+            <button class="pick" id="com" type="button">Com o sistema</button>
+          </div>
+          <div class="grid" id="casos"></div>
+        </div>
+      </section>
       <section id="servicos">
         <div class="wrap">
           <p class="kicker">Serviços</p>
@@ -126,8 +173,8 @@
       <section id="contato">
         <div class="wrap">
           <p class="kicker">Contato</p>
-          <h2>Conte o problema. O escopo vem depois.</h2>
-          <p class="lead">Fale pelo Instagram. Este é o site da Consultoria Digital.</p>
+          <h2>Quer ver isso na sua empresa?</h2>
+          <p class="lead">A conta usa os números que você escolheu. O próximo passo é me contar onde a resposta ainda depende de alguém lembrar.</p>
         </div>
       </section>
     </main>
@@ -200,6 +247,59 @@
       mobile.addEventListener("change", bind);
       bind();
       requestAnimationFrame(paint);
+
+      const casos = [
+        ["Orçamento", "O cliente pediu às 9h. Alguém só viu às 16h. Ele já fechou com outro.", "O cliente pediu às 9h. Em um minuto recebeu o caminho do orçamento."],
+        ["Cliente sumido", "Pediu ontem. Ninguém chamou. O interesse esfriou.", "No dia seguinte o sistema chama: seu orçamento segue valendo."],
+        ["Crescimento", "Para atender mais, a empresa precisa contratar.", "O mesmo time atende mais. A parte repetida não ocupa a mão de ninguém."]
+      ];
+      const lista = document.getElementById("casos");
+      let comSistema = false;
+      function pintarCasos() {
+        lista.innerHTML = casos.map(function (caso) {
+          return '<article class="card"><strong>' + caso[0] + '</strong><p>' + (comSistema ? caso[2] : caso[1]) + '</p></article>';
+        }).join("");
+      }
+      document.getElementById("sem").addEventListener("click", function () {
+        comSistema = false;
+        document.getElementById("sem").classList.add("on");
+        document.getElementById("com").classList.remove("on");
+        pintarCasos();
+      });
+      document.getElementById("com").addEventListener("click", function () {
+        comSistema = true;
+        document.getElementById("com").classList.add("on");
+        document.getElementById("sem").classList.remove("on");
+        pintarCasos();
+      });
+      pintarCasos();
+
+      function reais(valor) {
+        return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+      }
+      function conta() {
+        const msg = Number(document.getElementById("msg").value);
+        const minutos = Number(document.getElementById("min").value);
+        const ticket = Number(document.getElementById("ticket").value);
+        document.getElementById("vMsg").textContent = String(msg);
+        document.getElementById("vMin").textContent = minutos + " min";
+        document.getElementById("vTicket").textContent = reais(ticket);
+        const mes = msg * 22;
+        const perda = Math.min(0.55, Math.max(0.08, (minutos - 3) / 50));
+        const frios = mes * perda;
+        const parado = frios * ticket;
+        const recuperado = Math.max(0, (frios - mes * 0.08) * ticket);
+        const horas = Math.round(((mes * minutos) / 60) * 0.65);
+        document.getElementById("perdido").textContent = reais(parado);
+        document.getElementById("perdidoTxt").textContent = Math.round(frios) + " pedidos esfriam por mês";
+        document.getElementById("volta").textContent = reais(recuperado);
+        document.getElementById("voltaTxt").textContent = horas + " horas voltam para vender";
+        document.getElementById("ano").textContent = "Em 12 meses, ficar como está deixa " + reais(parado * 12) + " na mesa. Quem muda recolhe cerca de " + reais(recuperado * 12) + ". Quem responde primeiro fica com o pedido.";
+      }
+      ["msg", "min", "ticket"].forEach(function (id) {
+        document.getElementById(id).addEventListener("input", conta);
+      });
+      conta();
     </script>
   </body>
 </html>

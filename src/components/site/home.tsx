@@ -284,6 +284,94 @@ function LiveConsole() {
   );
 }
 
+function MarginLab() {
+  const [messages, setMessages] = useState(20);
+  const [minutes, setMinutes] = useState(15);
+  const [ticket, setTicket] = useState(200);
+  const month = messages * 22;
+  const loss = Math.min(0.55, Math.max(0.08, (minutes - 3) / 50));
+  const lost = month * loss;
+  const recovered = Math.max(0, (lost - month * 0.08) * ticket);
+  const left = lost * ticket;
+  const hoursBack = ((month * minutes) / 60) * 0.65;
+
+  return (
+    <article className="shadow-border rounded-2xl bg-surface p-5 sm:p-6">
+      <p className="text-xs font-medium tracking-widest text-cyan uppercase">A conta da empresa</p>
+      <h3 className="mt-2 font-semibold tracking-tight text-3xl leading-display">Quanto a demora tira do caixa</h3>
+      <p className="mt-2 text-sm text-pretty text-muted">
+        Arraste com os números da operação. 22 dias úteis. Quanto mais a resposta demora, mais pedido esfria. Com o sistema, a resposta sai na hora e essa perda cai para 8 em cada 100.
+      </p>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-4">
+          <Dial label="Mensagens por dia" value={messages} min={5} max={80} suffix="" onChange={setMessages} />
+          <Dial label="Minutos até responder" value={minutes} min={1} max={60} suffix=" min" onChange={setMinutes} />
+          <Dial label="Valor de um pedido" value={ticket} min={50} max={2000} suffix="" prefix="R$ " onChange={setTicket} />
+        </div>
+        <div className="flex flex-col justify-between gap-4 rounded-xl bg-ink p-5">
+          <div>
+            <p className="text-sm text-muted">Se continuar assim, por mês</p>
+            <p className="font-semibold tracking-tight text-4xl text-snow tabular-nums">{brl.format(left)}</p>
+            <p className="mt-1 text-sm text-muted">{Math.round(lost)} pedidos esfriam</p>
+          </div>
+          <div className="border-t border-cyan/20 pt-4">
+            <p className="text-sm text-muted">Se o sistema responde na hora</p>
+            <p className="font-semibold tracking-tight text-4xl text-cyan tabular-nums">{brl.format(recovered)}</p>
+            <p className="mt-1 text-sm text-muted">{Math.round(hoursBack)} horas voltam para vender</p>
+          </div>
+        </div>
+      </div>
+      <p className="mt-4 text-sm text-pretty">
+        Em 12 meses, ficar parado deixa {brl.format(left * 12)} na mesa. Quem muda recolhe cerca de {brl.format(recovered * 12)}. Quem responde primeiro fica com o pedido. Quem espera, perde a renda para quem já mudou.
+      </p>
+    </article>
+  );
+}
+
+function SampleLab() {
+  const [auto, setAuto] = useState(false);
+  const rows = [
+    {
+      title: "Orçamento",
+      off: "O cliente pediu às 9h. Alguém só viu às 16h. Ele já fechou com outro.",
+      on: "O cliente pediu às 9h. Em um minuto recebeu o caminho do orçamento.",
+    },
+    {
+      title: "Cliente sumido",
+      off: "Pediu ontem. Ninguém chamou. O interesse esfriou.",
+      on: "No dia seguinte o sistema chama: seu orçamento segue valendo.",
+    },
+    {
+      title: "Crescimento",
+      off: "Para atender mais, a empresa precisa contratar.",
+      on: "O mesmo time atende mais. A parte repetida não ocupa a mão de ninguém.",
+    },
+  ];
+
+  return (
+    <article className="shadow-border rounded-2xl bg-surface p-5 sm:p-6">
+      <p className="text-xs font-medium tracking-widest text-cyan uppercase">Três situações</p>
+      <h3 className="mt-2 font-semibold tracking-tight text-3xl leading-display">O mesmo dia, com e sem o sistema</h3>
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <button type="button" className={auto ? "press h-12 rounded-full border border-cyan/40 px-5 text-sm font-medium" : "press h-12 rounded-full bg-cyan px-5 text-sm font-medium text-ink"} onClick={() => setAuto(false)}>
+          Sem sistema
+        </button>
+        <button type="button" className={auto ? "press h-12 rounded-full bg-cyan px-5 text-sm font-medium text-ink" : "press h-12 rounded-full border border-cyan/40 px-5 text-sm font-medium"} onClick={() => setAuto(true)}>
+          Com o sistema
+        </button>
+      </div>
+      <ul className="mt-5 grid gap-3">
+        {rows.map((row) => (
+          <li key={row.title} className="rounded-xl bg-ink px-4 py-4">
+            <p className="text-xs font-medium tracking-widest text-cyan uppercase">{row.title}</p>
+            <p className="mt-2 text-pretty">{auto ? row.on : row.off}</p>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
 function HoursLab() {
   const [people, setPeople] = useState(4);
   const [minutes, setMinutes] = useState(12);
@@ -785,6 +873,8 @@ export function HomePage() {
               </div>
               <LiveConsole />
             </div>
+            <MarginLab />
+            <SampleLab />
             <HoursLab />
             <FlowLab />
             <ReadingLab onUse={useReading} />
